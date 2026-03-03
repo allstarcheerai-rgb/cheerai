@@ -5,14 +5,15 @@ import { db } from '@/lib/db';
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
     const project = await db.project.findFirst({
-      where: { id: params.id, userId: session.user.id },
+      where: { id, userId: session.user.id },
     });
     if (!project) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
 
@@ -25,20 +26,21 @@ export async function GET(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
     const existing = await db.project.findFirst({
-      where: { id: params.id, userId: session.user.id },
+      where: { id, userId: session.user.id },
     });
     if (!existing) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
 
     const { title, tags } = await req.json();
     const updated = await db.project.update({
-      where: { id: params.id },
+      where: { id },
       data: { ...(title && { title }), ...(tags !== undefined && { tags }) },
     });
 
@@ -51,18 +53,19 @@ export async function PATCH(
 
 export async function DELETE(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getServerSession(authOptions);
     if (!session?.user?.id) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
     const existing = await db.project.findFirst({
-      where: { id: params.id, userId: session.user.id },
+      where: { id, userId: session.user.id },
     });
     if (!existing) return NextResponse.json({ error: 'Not found.' }, { status: 404 });
 
-    await db.project.delete({ where: { id: params.id } });
+    await db.project.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[project DELETE]', error);
