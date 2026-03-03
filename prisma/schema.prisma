@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  email                String    @unique
+  name                 String?
+  password             String
+  role                 String    @default("user") // "user" | "admin"
+  subscription         String    @default("free") // "free" | "pro" | "annual"
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  generationsThisMonth Int       @default(0)
+  generationsResetAt   DateTime  @default(now())
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  projects             Project[]
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  type      String   // "marketing" | "practice-plan" | "score-translate" | "routine-notes"
+  content   String   // JSON stringified output
+  tags      String   @default("") // comma-separated
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model BrandPack {
+  id          String   @id @default(cuid())
+  name        String
+  vibe        String   @unique // slug key e.g. "rave-comp"
+  description String
+  colors      String   // JSON array: ["#hex1","#hex2","#hex3"]
+  tone        String   // "hype", "elegant", "playful", "clean"
+  emoji       String   @default("✨")
+  exampleCopy String
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
