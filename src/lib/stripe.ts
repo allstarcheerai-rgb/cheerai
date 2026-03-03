@@ -10,7 +10,7 @@ export function getStripe(): Stripe {
     if (!key || key.startsWith('sk_test_placeholder')) {
       throw new Error('STRIPE_SECRET_KEY is not configured. Add a real Stripe key to .env.');
     }
-    _stripe = new Stripe(key, { apiVersion: '2024-04-10', typescript: true });
+    _stripe = new Stripe(key, { apiVersion: '2023-10-16', typescript: true });
   }
   return _stripe;
 }
