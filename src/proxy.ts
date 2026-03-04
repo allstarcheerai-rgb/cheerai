@@ -10,10 +10,13 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/generator/:path*',
+    '/templates/:path*',
+    '/image-generator/:path*',
     '/projects/:path*',
     '/settings/:path*',
     '/api/generate/:path*',
     '/api/projects/:path*',
+    '/api/templates/:path*',
     '/api/stripe/checkout',
   ],
 };

@@ -22,8 +22,8 @@ export async function GET(req: NextRequest) {
         ...(search
           ? {
               OR: [
-                { title: { contains: search } },
-                { tags: { contains: search } },
+                { title: { contains: search, mode: 'insensitive' } },
+                { tags: { contains: search, mode: 'insensitive' } },
               ],
             }
           : {}),
@@ -46,7 +46,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Pro subscription required.' }, { status: 402 });
     }
 
-    const { title, type, content, tags } = await req.json();
+    const body = await req.json();
+    const { title, type, content, tags, outputImages } = body;
 
     if (!title || !type || !content) {
       return NextResponse.json({ error: 'Title, type, and content are required.' }, { status: 400 });
@@ -59,6 +60,7 @@ export async function POST(req: NextRequest) {
         type,
         content,
         tags: tags ?? '',
+        outputImages: outputImages ?? null,
       },
     });
 

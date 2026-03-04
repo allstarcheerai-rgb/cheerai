@@ -8,31 +8,53 @@ datasource db {
 }
 
 model User {
-  id                   String    @id @default(cuid())
-  email                String    @unique
+  id                   String     @id @default(cuid())
+  email                String     @unique
   name                 String?
   password             String
-  role                 String    @default("user") // "user" | "admin"
-  subscription         String    @default("free") // "free" | "pro" | "annual"
+  role                 String     @default("user") // "user" | "admin"
+  subscription         String     @default("free") // "free" | "pro" | "annual"
   stripeCustomerId     String?
   stripeSubscriptionId String?
-  generationsThisMonth Int       @default(0)
-  generationsResetAt   DateTime  @default(now())
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  generationsThisMonth Int        @default(0)
+  generationsResetAt   DateTime   @default(now())
+  onboardingCompleted  Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  updatedAt            DateTime   @updatedAt
   projects             Project[]
+  templates            Template[]
 }
 
 model Project {
-  id        String   @id @default(cuid())
-  userId    String
-  title     String
-  type      String   // "marketing" | "practice-plan" | "score-translate" | "routine-notes"
-  content   String   // JSON stringified output
-  tags      String   @default("") // comma-separated
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  userId       String
+  title        String
+  type         String   // "marketing" | "practice-plan" | "score-translate" | "routine-notes" | "template" | "image"
+  content      String   // JSON stringified output
+  outputImages String?  // JSON array of image URLs
+  tags         String   @default("") // comma-separated
+  pinned       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Template {
+  id             String   @id @default(cuid())
+  title          String
+  category       String   // "marketing" | "coaching" | "communication" | "outreach" | "hr"
+  description    String
+  promptTemplate String
+  inputSchema    String   // JSON array of form field definitions
+  defaultValues  String   @default("{}") // JSON object of default values
+  tags           String?  // comma-separated tags
+  previewImage   String?
+  isSystem       Boolean  @default(true)  // true = built-in, false = user-created
+  userId         String?  // null = system template
+  user           User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  usageCount     Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model BrandPack {
